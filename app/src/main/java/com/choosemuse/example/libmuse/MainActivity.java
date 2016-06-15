@@ -46,15 +46,10 @@ import android.os.Environment;
 import android.os.Looper;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
 
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+//import android.support.v4.app.ActivityCompat;
+//import android.support.v4.content.ContextCompat;
 
 /**
  * This example will illustrate how to connect to a Muse headband,
@@ -77,7 +72,7 @@ import android.support.v4.content.ContextCompat;
  * 7. You can pause/resume data transmission with the button at the bottom of the screen.
  * 8. To disconnect from the headband, press "Disconnect"
  */
-public class MainActivity extends UnityPlayerActivity implements OnClickListener {
+public class MainActivity extends UnityPlayerActivity {
 
     /**
      * Tag used for logging purposes.
@@ -147,12 +142,6 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
     private final Handler handler = new Handler();
 
     /**
-     * In the UI, the list of Muses you can connect to is displayed in a Spinner object for this example.
-     * This spinner adapter contains the MAC addresses of all of the headbands we have discovered.
-     */
-    private ArrayAdapter<String> spinnerAdapter;
-
-    /**
      * It is possible to pause the data transmission from the headband.  This boolean tracks whether
      * or not the data transmission is enabled as we allow the user to pause transmission in the UI.
      */
@@ -201,11 +190,8 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
         // simplify the connection process.  This requires access to the COARSE_LOCATION
         // or FINE_LOCATION permissions.  Make sure we have these permissions before
         // proceeding.
-        ensurePermissions();
+//        ensurePermissions();
       manager.startListening();
-
-        // Load and initialize our UI.
-        initUI();
 
         // Start up a thread for asynchronous file operations.
         // This is only needed if you want to do File I/O.
@@ -223,72 +209,71 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
         manager.stopListening();
     }
 
-    @Override
-    public void onClick(View v) {
-
-        if (v.getId() == R.id.refresh) {
-            // The user has pressed the "Refresh" button.
-            // Start listening for nearby or paired Muse headbands. We call stopListening
-            // first to make sure startListening will clear the list of headbands and start fresh.
-            manager.stopListening();
-            manager.startListening();
-
-        } else if (v.getId() == R.id.connect) {
-
-            // The user has pressed the "Connect" button to connect to
-            // the headband in the spinner.
-
-            // Listening is an expensive operation, so now that we know
-            // which headband the user wants to connect to we can stop
-            // listening for other headbands.
-            manager.stopListening();
-
-            List<Muse> availableMuses = manager.getMuses();
-            Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
-
-            // Check that we actually have something to connect to.
-            if (availableMuses.size() < 1 || musesSpinner.getAdapter().getCount() < 1) {
-                Log.w(TAG, "There is nothing to connect to");
-            } else {
-
-                // Cache the Muse that the user has selected.
-                muse = availableMuses.get(musesSpinner.getSelectedItemPosition());
-                // Unregister all prior listeners and register our data listener to
-                // receive the MuseDataPacketTypes we are interested in.  If you do
-                // not register a listener for a particular data type, you will not
-                // receive data packets of that type.
-                muse.unregisterAllListeners();
-                muse.registerConnectionListener(connectionListener);
-                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
-                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
-
-                // Initiate a connection to the headband and stream the data asynchronously.
-                muse.runAsynchronously();
-            }
-
-        } else if (v.getId() == R.id.disconnect) {
-
-            // The user has pressed the "Disconnect" button.
-            // Disconnect from the selected Muse.
-            if (muse != null) {
-                muse.disconnect(false);
-            }
-
-        } else if (v.getId() == R.id.pause) {
-
-            // The user has pressed the "Pause/Resume" button to either pause or
-            // resume data transmission.  Toggle the state and pause or resume the
-            // transmission on the headband.
-            if (muse != null) {
-                dataTransmission = !dataTransmission;
-                muse.enableDataTransmission(dataTransmission);
-            }
-        }
-    }
+//    public void onClick(View v) {
+//
+//        if (v.getId() == R.id.refresh) {
+//            // The user has pressed the "Refresh" button.
+//            // Start listening for nearby or paired Muse headbands. We call stopListening
+//            // first to make sure startListening will clear the list of headbands and start fresh.
+//            manager.stopListening();
+//            manager.startListening();
+//
+//        } else if (v.getId() == R.id.connect) {
+//
+//            // The user has pressed the "Connect" button to connect to
+//            // the headband in the spinner.
+//
+//            // Listening is an expensive operation, so now that we know
+//            // which headband the user wants to connect to we can stop
+//            // listening for other headbands.
+//            manager.stopListening();
+//
+//            List<Muse> availableMuses = manager.getMuses();
+//            Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
+//
+//            // Check that we actually have something to connect to.
+//            if (availableMuses.size() < 1 || musesSpinner.getAdapter().getCount() < 1) {
+//                Log.w(TAG, "There is nothing to connect to");
+//            } else {
+//
+//                // Cache the Muse that the user has selected.
+//                muse = availableMuses.get(musesSpinner.getSelectedItemPosition());
+//                // Unregister all prior listeners and register our data listener to
+//                // receive the MuseDataPacketTypes we are interested in.  If you do
+//                // not register a listener for a particular data type, you will not
+//                // receive data packets of that type.
+//                muse.unregisterAllListeners();
+//                muse.registerConnectionListener(connectionListener);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
+//                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
+//
+//                // Initiate a connection to the headband and stream the data asynchronously.
+//                muse.runAsynchronously();
+//            }
+//
+//        } else if (v.getId() == R.id.disconnect) {
+//
+//            // The user has pressed the "Disconnect" button.
+//            // Disconnect from the selected Muse.
+//            if (muse != null) {
+//                muse.disconnect(false);
+//            }
+//
+//        } else if (v.getId() == R.id.pause) {
+//
+//            // The user has pressed the "Pause/Resume" button to either pause or
+//            // resume data transmission.  Toggle the state and pause or resume the
+//            // transmission on the headband.
+//            if (muse != null) {
+//                dataTransmission = !dataTransmission;
+//                muse.enableDataTransmission(dataTransmission);
+//            }
+//        }
+//    }
 
   private void refreshMuse() {
     manager.stopListening();
@@ -327,50 +312,50 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
       muse.runAsynchronously();
     }
   }
-    //--------------------------------------
-    // Permissions
-
-    /**
-     * The ACCESS_COARSE_LOCATION permission is required to use the
-     * Bluetooth Low Energy library and must be requested at runtime for Android 6.0+
-     * On an Android 6.0 device, the following code will display 2 dialogs,
-     * one to provide context and the second to request the permission.
-     * On an Android device running an earlier version, nothing is displayed
-     * as the permission is granted from the manifest.
-     *
-     * If the permission is not granted, then Muse 2016 (MU-02) headbands will
-     * not be discovered and a SecurityException will be thrown.
-     */
-    private void ensurePermissions() {
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
-            // We don't have the ACCESS_COARSE_LOCATION permission so create the dialogs asking
-            // the user to grant us the permission.
-
-            DialogInterface.OnClickListener buttonListener =
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which){
-                            dialog.dismiss();
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                    0);
-                        }
-                    };
-
-            // This is the context dialog which explains to the user the reason we are requesting
-            // this permission.  When the user presses the positive (I Understand) button, the
-            // standard Android permission dialog will be displayed (as defined in the button
-            // listener above).
-            AlertDialog introDialog = new AlertDialog.Builder(this)
-                    .setTitle(R.string.permission_dialog_title)
-                    .setMessage(R.string.permission_dialog_description)
-                    .setPositiveButton(R.string.permission_dialog_understand, buttonListener)
-                    .create();
-            introDialog.show();
-        }
-    }
+//    //--------------------------------------
+//    // Permissions
+//
+//    /**
+//     * The ACCESS_COARSE_LOCATION permission is required to use the
+//     * Bluetooth Low Energy library and must be requested at runtime for Android 6.0+
+//     * On an Android 6.0 device, the following code will display 2 dialogs,
+//     * one to provide context and the second to request the permission.
+//     * On an Android device running an earlier version, nothing is displayed
+//     * as the permission is granted from the manifest.
+//     *
+//     * If the permission is not granted, then Muse 2016 (MU-02) headbands will
+//     * not be discovered and a SecurityException will be thrown.
+//     */
+//    private void ensurePermissions() {
+//
+//        if (ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+//        {
+//            // We don't have the ACCESS_COARSE_LOCATION permission so create the dialogs asking
+//            // the user to grant us the permission.
+//
+//            DialogInterface.OnClickListener buttonListener =
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which){
+//                            dialog.dismiss();
+//                            ActivityCompat.requestPermissions(MainActivity.this,
+//                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+//                                    0);
+//                        }
+//                    };
+//
+//            // This is the context dialog which explains to the user the reason we are requesting
+//            // this permission.  When the user presses the positive (I Understand) button, the
+//            // standard Android permission dialog will be displayed (as defined in the button
+//            // listener above).
+//            AlertDialog introDialog = new AlertDialog.Builder(this)
+//                    .setTitle(R.string.permission_dialog_title)
+//                    .setMessage(R.string.permission_dialog_description)
+//                    .setPositiveButton(R.string.permission_dialog_understand, buttonListener)
+//                    .create();
+//            introDialog.show();
+//        }
+//    }
 
 
     //--------------------------------------
@@ -382,11 +367,9 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
      */
     public void museListChanged() {
         final List<Muse> list = manager.getMuses();
-        spinnerAdapter.clear();
       int i =0;
         for (Muse m : list) {
           String name = m.getName() + " - " + m.getMacAddress();
-            spinnerAdapter.add(name);
           Log.d("MUSE", name);
           if (name.equals("Muse-5390 - 00:06:66:6F:53:90")) {
             connectToMuse(i);
@@ -416,29 +399,29 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
       sendStatusToUnity(status);
         Log.i(TAG, status);
 
-        // Update the UI with the change in connection state.
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-
-                final TextView statusText = (TextView) findViewById(R.id.con_status);
-                statusText.setText(status);
-
-                final MuseVersion museVersion = muse.getMuseVersion();
-                final TextView museVersionText = (TextView) findViewById(R.id.version);
-                // If we haven't yet connected to the headband, the version information
-                // will be null.  You have to connect to the headband before either the
-                // MuseVersion or MuseConfiguration information is known.
-                if (museVersion != null) {
-                    final String version = museVersion.getFirmwareType() + " - "
-                            + museVersion.getFirmwareVersion() + " - "
-                            + museVersion.getProtocolVersion();
-                    museVersionText.setText(version);
-                } else {
-                    museVersionText.setText(R.string.undefined);
-                }
-            }
-        });
+//        // Update the UI with the change in connection state.
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                final TextView statusText = (TextView) findViewById(R.id.con_status);
+//                statusText.setText(status);
+//
+//                final MuseVersion museVersion = muse.getMuseVersion();
+//                final TextView museVersionText = (TextView) findViewById(R.id.version);
+//                // If we haven't yet connected to the headband, the version information
+//                // will be null.  You have to connect to the headband before either the
+//                // MuseVersion or MuseConfiguration information is known.
+//                if (museVersion != null) {
+//                    final String version = museVersion.getFirmwareType() + " - "
+//                            + museVersion.getFirmwareVersion() + " - "
+//                            + museVersion.getProtocolVersion();
+//                    museVersionText.setText(version);
+//                } else {
+//                    museVersionText.setText(R.string.undefined);
+//                }
+//            }
+//        });
 
         if (current == ConnectionState.DISCONNECTED) {
             Log.i(TAG, "Muse disconnected:" + muse.getName());
@@ -564,29 +547,6 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
     UnityPlayer.UnitySendMessage("Main Camera", "receiveAlpha", alpha);
   }
 
-
-    //--------------------------------------
-    // UI Specific methods
-
-    /**
-     * Initializes the UI of the example application.
-     */
-    private void initUI() {
-        setContentView(R.layout.activity_main);
-        Button refreshButton = (Button) findViewById(R.id.refresh);
-        refreshButton.setOnClickListener(this);
-        Button connectButton = (Button) findViewById(R.id.connect);
-        connectButton.setOnClickListener(this);
-        Button disconnectButton = (Button) findViewById(R.id.disconnect);
-        disconnectButton.setOnClickListener(this);
-        Button pauseButton = (Button) findViewById(R.id.pause);
-        pauseButton.setOnClickListener(this);
-
-        spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
-        Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
-        musesSpinner.setAdapter(spinnerAdapter);
-    }
-
     /**
      * The runnable that is used to update the UI at 60Hz.
      *
@@ -617,34 +577,23 @@ public class MainActivity extends UnityPlayerActivity implements OnClickListener
      * from the buffers.
      */
     private void updateAccel() {
-        TextView acc_x = (TextView)findViewById(R.id.acc_x);
-        TextView acc_y = (TextView)findViewById(R.id.acc_y);
-        TextView acc_z = (TextView)findViewById(R.id.acc_z);
-        acc_x.setText(String.format("%6.2f", accelBuffer[0]));
-        acc_y.setText(String.format("%6.2f", accelBuffer[1]));
-        acc_z.setText(String.format("%6.2f", accelBuffer[2]));
+      Log.d("MUSE", "accelBuffer[0]: "+String.format("%6.2f", accelBuffer[0]));
+      Log.d("MUSE", "accelBuffer[1]: "+String.format("%6.2f", accelBuffer[1]));
+      Log.d("MUSE", "accelBuffer[2]: "+String.format("%6.2f", accelBuffer[2]));
     }
 
     private void updateEeg() {
-        TextView tp9 = (TextView)findViewById(R.id.eeg_tp9);
-        TextView fp1 = (TextView)findViewById(R.id.eeg_af7);
-        TextView fp2 = (TextView)findViewById(R.id.eeg_af8);
-        TextView tp10 = (TextView)findViewById(R.id.eeg_tp10);
-        tp9.setText(String.format("%6.2f", eegBuffer[0]));
-        fp1.setText(String.format("%6.2f", eegBuffer[1]));
-        fp2.setText(String.format("%6.2f", eegBuffer[2]));
-        tp10.setText(String.format("%6.2f", eegBuffer[3]));
+      Log.d("MUSE", "eegBuffer[0]: "+String.format("%6.2f", eegBuffer[0])); //eeg_tp9
+      Log.d("MUSE", "eegBuffer[1]: "+String.format("%6.2f", eegBuffer[1])); //eeg_af7
+      Log.d("MUSE", "eegBuffer[2]: "+String.format("%6.2f", eegBuffer[2])); //eeg_af8
+      Log.d("MUSE", "eegBuffer[3]: "+String.format("%6.2f", eegBuffer[3])); //eeg_tp10
     }
 
     private void updateAlpha() {
-        TextView elem1 = (TextView)findViewById(R.id.elem1);
-        elem1.setText(String.format("%6.2f", alphaBuffer[0]));
-        TextView elem2 = (TextView)findViewById(R.id.elem2);
-        elem2.setText(String.format("%6.2f", alphaBuffer[1]));
-        TextView elem3 = (TextView)findViewById(R.id.elem3);
-        elem3.setText(String.format("%6.2f", alphaBuffer[2]));
-        TextView elem4 = (TextView)findViewById(R.id.elem4);
-        elem4.setText(String.format("%6.2f", alphaBuffer[3]));
+      Log.d("MUSE", "alphaBuffer[0]: "+String.format("%6.2f", alphaBuffer[0])); //eeg_tp9
+      Log.d("MUSE", "alphaBuffer[1]: "+String.format("%6.2f", alphaBuffer[1])); //eeg_af7
+      Log.d("MUSE", "alphaBuffer[2]: "+String.format("%6.2f", alphaBuffer[2])); //eeg_af8
+      Log.d("MUSE", "alphaBuffer[3]: "+String.format("%6.2f", alphaBuffer[3])); //eeg_tp10
     }
 
 
