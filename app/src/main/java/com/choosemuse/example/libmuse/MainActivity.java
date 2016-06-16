@@ -394,7 +394,14 @@ public class MainActivity {
     for (double value: buffer) {
       alphaString += value + " ";
     }
-    sendAlphaToUnity(alphaString);
+    float total = 0;
+    for (int i=0; i<4; i++) {
+      double value= buffer[i];
+      if (value>0 && value <1) {
+        total += value;
+      }
+    }
+    sendAlphaToUnity(Float.toString(total));
   }
 
     private void getAccelValues(MuseDataPacket p) {
