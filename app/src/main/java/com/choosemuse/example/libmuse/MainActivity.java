@@ -77,7 +77,7 @@ public class MainActivity extends UnityPlayerActivity {
     /**
      * Tag used for logging purposes.
      */
-    private final String TAG = "TestLibMuseAndroid";
+    private final String TAG = "MUSE";
 
     /**
      * The MuseManager is how you detect Muse headbands and receive notifications
@@ -174,7 +174,8 @@ public class MainActivity extends UnityPlayerActivity {
         manager = MuseManagerAndroid.getInstance();
         manager.setContext(this);
 
-        Log.i(TAG, "LibMuse version=" + LibmuseVersion.instance().getString());
+      Log.d(TAG, "onCreate");
+        Log.d(TAG, "LibMUSE version=" + LibmuseVersion.instance().getString());
 
         WeakReference<MainActivity> weakActivity =
                 new WeakReference<MainActivity>(this);
@@ -195,7 +196,7 @@ public class MainActivity extends UnityPlayerActivity {
 
         // Start up a thread for asynchronous file operations.
         // This is only needed if you want to do File I/O.
-        fileThread.start();
+//        fileThread.start();
       refreshThread.start();
 
         // Start our asynchronous updates of the UI.
@@ -208,72 +209,6 @@ public class MainActivity extends UnityPlayerActivity {
         // to avoid a resource leak from the LibMuse library.
         manager.stopListening();
     }
-
-//    public void onClick(View v) {
-//
-//        if (v.getId() == R.id.refresh) {
-//            // The user has pressed the "Refresh" button.
-//            // Start listening for nearby or paired Muse headbands. We call stopListening
-//            // first to make sure startListening will clear the list of headbands and start fresh.
-//            manager.stopListening();
-//            manager.startListening();
-//
-//        } else if (v.getId() == R.id.connect) {
-//
-//            // The user has pressed the "Connect" button to connect to
-//            // the headband in the spinner.
-//
-//            // Listening is an expensive operation, so now that we know
-//            // which headband the user wants to connect to we can stop
-//            // listening for other headbands.
-//            manager.stopListening();
-//
-//            List<Muse> availableMuses = manager.getMuses();
-//            Spinner musesSpinner = (Spinner) findViewById(R.id.muses_spinner);
-//
-//            // Check that we actually have something to connect to.
-//            if (availableMuses.size() < 1 || musesSpinner.getAdapter().getCount() < 1) {
-//                Log.w(TAG, "There is nothing to connect to");
-//            } else {
-//
-//                // Cache the Muse that the user has selected.
-//                muse = availableMuses.get(musesSpinner.getSelectedItemPosition());
-//                // Unregister all prior listeners and register our data listener to
-//                // receive the MuseDataPacketTypes we are interested in.  If you do
-//                // not register a listener for a particular data type, you will not
-//                // receive data packets of that type.
-//                muse.unregisterAllListeners();
-//                muse.registerConnectionListener(connectionListener);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-//                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
-//
-//                // Initiate a connection to the headband and stream the data asynchronously.
-//                muse.runAsynchronously();
-//            }
-//
-//        } else if (v.getId() == R.id.disconnect) {
-//
-//            // The user has pressed the "Disconnect" button.
-//            // Disconnect from the selected Muse.
-//            if (muse != null) {
-//                muse.disconnect(false);
-//            }
-//
-//        } else if (v.getId() == R.id.pause) {
-//
-//            // The user has pressed the "Pause/Resume" button to either pause or
-//            // resume data transmission.  Toggle the state and pause or resume the
-//            // transmission on the headband.
-//            if (muse != null) {
-//                dataTransmission = !dataTransmission;
-//                muse.enableDataTransmission(dataTransmission);
-//            }
-//        }
-//    }
 
   private void refreshMuse() {
     manager.stopListening();
@@ -312,51 +247,6 @@ public class MainActivity extends UnityPlayerActivity {
       muse.runAsynchronously();
     }
   }
-//    //--------------------------------------
-//    // Permissions
-//
-//    /**
-//     * The ACCESS_COARSE_LOCATION permission is required to use the
-//     * Bluetooth Low Energy library and must be requested at runtime for Android 6.0+
-//     * On an Android 6.0 device, the following code will display 2 dialogs,
-//     * one to provide context and the second to request the permission.
-//     * On an Android device running an earlier version, nothing is displayed
-//     * as the permission is granted from the manifest.
-//     *
-//     * If the permission is not granted, then Muse 2016 (MU-02) headbands will
-//     * not be discovered and a SecurityException will be thrown.
-//     */
-//    private void ensurePermissions() {
-//
-//        if (ContextCompat.checkSelfPermission(this,
-//                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-//        {
-//            // We don't have the ACCESS_COARSE_LOCATION permission so create the dialogs asking
-//            // the user to grant us the permission.
-//
-//            DialogInterface.OnClickListener buttonListener =
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which){
-//                            dialog.dismiss();
-//                            ActivityCompat.requestPermissions(MainActivity.this,
-//                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-//                                    0);
-//                        }
-//                    };
-//
-//            // This is the context dialog which explains to the user the reason we are requesting
-//            // this permission.  When the user presses the positive (I Understand) button, the
-//            // standard Android permission dialog will be displayed (as defined in the button
-//            // listener above).
-//            AlertDialog introDialog = new AlertDialog.Builder(this)
-//                    .setTitle(R.string.permission_dialog_title)
-//                    .setMessage(R.string.permission_dialog_description)
-//                    .setPositiveButton(R.string.permission_dialog_understand, buttonListener)
-//                    .create();
-//            introDialog.show();
-//        }
-//    }
-
 
     //--------------------------------------
     // Listeners
@@ -386,47 +276,26 @@ public class MainActivity extends UnityPlayerActivity {
      */
     public void receiveMuseConnectionPacket(final MuseConnectionPacket p, final Muse muse) {
 
+      Log.d(TAG, "receiveMuseConnectionPacket");
         final ConnectionState current = p.getCurrentConnectionState();
 
         // Format a message to show the change of connection state in the UI.
         final String status = p.getPreviousConnectionState() + " -> " + current;
       if (current.equals("CONNECTED")) {
         isConnected = true;
+        Log.d(TAG, "is connected");
       }
       else {
         isConnected = false;
+        Log.d(TAG, "is NOT connected");
       }
       sendStatusToUnity(status);
         Log.i(TAG, status);
 
-//        // Update the UI with the change in connection state.
-//        handler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                final TextView statusText = (TextView) findViewById(R.id.con_status);
-//                statusText.setText(status);
-//
-//                final MuseVersion museVersion = muse.getMuseVersion();
-//                final TextView museVersionText = (TextView) findViewById(R.id.version);
-//                // If we haven't yet connected to the headband, the version information
-//                // will be null.  You have to connect to the headband before either the
-//                // MuseVersion or MuseConfiguration information is known.
-//                if (museVersion != null) {
-//                    final String version = museVersion.getFirmwareType() + " - "
-//                            + museVersion.getFirmwareVersion() + " - "
-//                            + museVersion.getProtocolVersion();
-//                    museVersionText.setText(version);
-//                } else {
-//                    museVersionText.setText(R.string.undefined);
-//                }
-//            }
-//        });
-
         if (current == ConnectionState.DISCONNECTED) {
-            Log.i(TAG, "Muse disconnected:" + muse.getName());
+            Log.i(TAG, "MUSE disconnected:" + muse.getName());
             // Save the data file once streaming has stopped.
-            saveFile();
+//            saveFile();
             // We have disconnected from the headband, so set our cached copy to null.
             this.muse = null;
         }
@@ -441,8 +310,8 @@ public class MainActivity extends UnityPlayerActivity {
      */
     public void receiveMuseDataPacket(final MuseDataPacket p, final Muse muse) {
         writeDataPacketToFile(p);
-
-        // valuesSize returns the number of data values contained in the packet.
+      Log.d(TAG, "receiveMuseDataPacket");
+          // valuesSize returns the number of data values contained in the packet.
         final long n = p.valuesSize();
         switch (p.packetType()) {
             case EEG:
@@ -672,73 +541,6 @@ public class MainActivity extends UnityPlayerActivity {
                     w.close();
                 }
             });
-        }
-    }
-
-    /**
-     * Reads the provided .muse file and prints the data to the logcat.
-     * @param name  The name of the file to read.  The file in this example
-     *              is assumed to be in the Environment.DIRECTORY_DOWNLOADS
-     *              directory.
-     */
-    private void playMuseFile(String name) {
-
-        File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-        File file = new File(dir, name);
-
-        final String tag = "Muse File Reader";
-
-        if (!file.exists()) {
-            Log.w(tag, "file doesn't exist");
-            return;
-        }
-
-        MuseFileReader fileReader = MuseFileFactory.getMuseFileReader(file);
-
-        // Loop through each message in the file.  gotoNextMessage will read the next message
-        // and return the result of the read operation as a Result.
-        Result res = fileReader.gotoNextMessage();
-        while (res.getLevel() == ResultLevel.R_INFO && !res.getInfo().contains("EOF")) {
-
-            MessageType type = fileReader.getMessageType();
-            int id = fileReader.getMessageId();
-            long timestamp = fileReader.getMessageTimestamp();
-
-            Log.i(tag, "type: " + type.toString() +
-                  " id: " + Integer.toString(id) +
-                  " timestamp: " + String.valueOf(timestamp));
-
-            switch(type) {
-                // EEG messages contain raw EEG data or DRL/REF data.
-                // EEG derived packets like ALPHA_RELATIVE and artifact packets
-                // are stored as MUSE_ELEMENTS messages.
-                case EEG:
-                case BATTERY:
-                case ACCELEROMETER:
-                case QUANTIZATION:
-                case GYRO:
-                case MUSE_ELEMENTS:
-                    MuseDataPacket packet = fileReader.getDataPacket();
-                    Log.i(tag, "data packet: " + packet.packetType().toString());
-                    break;
-                case VERSION:
-                    MuseVersion version = fileReader.getVersion();
-                    Log.i(tag, "version" + version.getFirmwareType());
-                    break;
-                case CONFIGURATION:
-                    MuseConfiguration config = fileReader.getConfiguration();
-                    Log.i(tag, "config" + config.getBluetoothMac());
-                    break;
-                case ANNOTATION:
-                    AnnotationData annotation = fileReader.getAnnotation();
-                    Log.i(tag, "annotation" + annotation.getData());
-                    break;
-                default:
-                    break;
-            }
-
-            // Read the next message.
-            res = fileReader.gotoNextMessage();
         }
     }
 
