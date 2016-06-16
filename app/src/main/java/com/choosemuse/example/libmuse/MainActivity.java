@@ -39,6 +39,7 @@ import com.unity3d.player.UnityPlayerActivity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -72,8 +73,9 @@ import android.widget.ArrayAdapter;
  * 7. You can pause/resume data transmission with the button at the bottom of the screen.
  * 8. To disconnect from the headband, press "Disconnect"
  */
-public class MainActivity extends UnityPlayerActivity {
+public class MainActivity {
 
+  private Context context;
     /**
      * Tag used for logging purposes.
      */
@@ -139,7 +141,7 @@ public class MainActivity extends UnityPlayerActivity {
      * at about 60fps. The update functions do some string allocation, so this reduces our memory
      * footprint and makes GC pauses less frequent/noticeable.
      */
-    private final Handler handler = new Handler();
+//    private final Handler handler = new Handler();
 
     /**
      * It is possible to pause the data transmission from the headband.  This boolean tracks whether
@@ -164,47 +166,57 @@ public class MainActivity extends UnityPlayerActivity {
     //--------------------------------------
     // Lifecycle / Connection code
 
+  private static MainActivity instance;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+  public MainActivity(Context context) {
+    this.instance = this;
+    this.context = context;
 
-        // We need to set the context on MuseManagerAndroid before we can do anything.
-        // This must come before other LibMuse API calls as it also loads the library.
-        manager = MuseManagerAndroid.getInstance();
-        manager.setContext(this);
+    // We need to set the context on MuseManagerAndroid before we can do anything.
+    // This must come before other LibMuse API calls as it also loads the library.
+    manager = MuseManagerAndroid.getInstance();
+    manager.setContext(context);
 
-      Log.d(TAG, "onCreate");
-        Log.d(TAG, "LibMUSE version=" + LibmuseVersion.instance().getString());
+    Log.d(TAG, "onCreate");
+    Log.d(TAG, "LibMUSE version=" + LibmuseVersion.instance().getString());
 
-        WeakReference<MainActivity> weakActivity =
-                new WeakReference<MainActivity>(this);
-        // Register a listener to receive connection state changes.
-        connectionListener = new ConnectionListener(weakActivity);
-        // Register a listener to receive data from a Muse.
-        dataListener = new DataListener(weakActivity);
-        // Register a listener to receive notifications of what Muse headbands
-        // we can connect to.
-        manager.setMuseListener(new MuseL(weakActivity));
+    WeakReference<MainActivity> weakActivity =
+        new WeakReference<MainActivity>(this);
+    // Register a listener to receive connection state changes.
+    connectionListener = new ConnectionListener(weakActivity);
+    // Register a listener to receive data from a Muse.
+    dataListener = new DataListener(weakActivity);
+    // Register a listener to receive notifications of what Muse headbands
+    // we can connect to.
+    manager.setMuseListener(new MuseL(weakActivity));
 
-        // Muse 2016 (MU-02) headbands use Bluetooth Low Energy technology to
-        // simplify the connection process.  This requires access to the COARSE_LOCATION
-        // or FINE_LOCATION permissions.  Make sure we have these permissions before
-        // proceeding.
+    // Muse 2016 (MU-02) headbands use Bluetooth Low Energy technology to
+    // simplify the connection process.  This requires access to the COARSE_LOCATION
+    // or FINE_LOCATION permissions.  Make sure we have these permissions before
+    // proceeding.
 //        ensurePermissions();
-      manager.startListening();
+    manager.stopListening();
+    manager.startListening();
 
-        // Start up a thread for asynchronous file operations.
-        // This is only needed if you want to do File I/O.
+    // Start up a thread for asynchronous file operations.
+    // This is only needed if you want to do File I/O.
 //        fileThread.start();
-      refreshThread.start();
+    refreshThread.start();
 
-        // Start our asynchronous updates of the UI.
-        handler.post(tickUi);
+    // Start our asynchronous updates of the UI.
+//    handler.post(tickUi);
+  }
+
+    public static MainActivity getInstance(Context context) {
+//        super.onCreate(savedInstanceState);
+      if(instance == null) {
+        instance = new MainActivity(context);
+      }
+      return instance;
     }
 
     protected void onPause() {
-        super.onPause();
+//        super.onPause();
         // It is important to call stopListening when the Activity is paused
         // to avoid a resource leak from the LibMuse library.
         manager.stopListening();
@@ -398,22 +410,22 @@ public class MainActivity extends UnityPlayerActivity {
 
   private void sendStatusToUnity(String status) {
     Log.d("MUSE", "sendStatusToUnity");
-    UnityPlayer.UnitySendMessage("Main Camera", "receiveStatus", status);
+    UnityPlayer.UnitySendMessage("Listener", "receiveStatus", status);
   }
 
   private void sendAccelToUnity(String accel) {
     Log.d("MUSE", "sendAccelToUnity");
-    UnityPlayer.UnitySendMessage("Main Camera", "receiveAccel", accel);
+    UnityPlayer.UnitySendMessage("Listener", "receiveAccel", accel);
   }
 
   private void sendEegToUnity(String eeg) {
     Log.d("MUSE", "sendEegToUnity");
-    UnityPlayer.UnitySendMessage("Main Camera", "receiveEeg", eeg);
+    UnityPlayer.UnitySendMessage("Listener", "receiveEeg", eeg);
   }
 
   private void sendAlphaToUnity(String alpha) {
     Log.d("MUSE", "sendAlphaToUnity");
-    UnityPlayer.UnitySendMessage("Main Camera", "receiveAlpha", alpha);
+    UnityPlayer.UnitySendMessage("Listener", "receiveAlpha", alpha);
   }
 
     /**
@@ -425,21 +437,21 @@ public class MainActivity extends UnityPlayerActivity {
      * functions do some string allocation, so this reduces our memory
      * footprint and makes GC pauses less frequent/noticeable.
      */
-    private final Runnable tickUi = new Runnable() {
-        @Override
-        public void run() {
-            if (eegStale) {
-                updateEeg();
-            }
-            if (accelStale) {
-                updateAccel();
-            }
-            if (alphaStale) {
-                updateAlpha();
-            }
-            handler.postDelayed(tickUi, 1000 / 60);
-        }
-    };
+//    private final Runnable tickUi = new Runnable() {
+//        @Override
+//        public void run() {
+//            if (eegStale) {
+//                updateEeg();
+//            }
+//            if (accelStale) {
+//                updateAccel();
+//            }
+//            if (alphaStale) {
+//                updateAlpha();
+//            }
+//            handler.postDelayed(tickUi, 1000 / 60);
+//        }
+//    };
 
     /**
      * The following methods update the TextViews in the UI with the data
@@ -478,7 +490,7 @@ public class MainActivity extends UnityPlayerActivity {
         public void run() {
             Looper.prepare();
             fileHandler.set(new Handler());
-            final File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+            final File dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
             final File file = new File(dir, "new_muse_file.muse" );
             // MuseFileWriter will append to an existing file.
             // In this case, we want to start fresh so the file
